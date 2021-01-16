@@ -5,7 +5,7 @@
  * IMPORTANT: DATA HASHES CANNOT BE "DECRYPTED" BACK TO PLAIN TEXT.
  *
  * Modified for Anope.
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Taken from InspIRCd (https://www.inspircd.org/),
@@ -220,7 +220,7 @@ class SHA256Context : public Encryption::Context
 class SHA256Provider : public Encryption::Provider
 {
  public:
- 	SHA256Provider(Module *creator) : Encryption::Provider(creator, "sha256") { }
+	SHA256Provider(Module *creator) : Encryption::Provider(creator, "sha256") { }
 
 	Encryption::Context *CreateContext(Encryption::IV *iv) anope_override
 	{

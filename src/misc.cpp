@@ -1,6 +1,6 @@
 /* Miscellaneous routines.
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -739,7 +739,7 @@ Anope::string Anope::Resolve(const Anope::string &host, int type)
 	if (getaddrinfo(host.c_str(), NULL, &hints, &addrresult) == 0)
 	{
 		sockaddrs addr;
-		memcpy(&addr, addrresult->ai_addr, addrresult->ai_addrlen);
+		memcpy(static_cast<void*>(&addr), addrresult->ai_addr, addrresult->ai_addrlen);
 		result = addr.addr();
 		Log(LOG_DEBUG_2) << "Resolver: " << host << " -> " << result;
 

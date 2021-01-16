@@ -1,6 +1,6 @@
 /* InspIRCd 2.0 functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -184,9 +184,9 @@ namespace InspIRCdExtban
 	class AccountMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	AccountMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		AccountMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
 		bool Matches(User *u, const Entry *e) anope_override
 		{
@@ -200,46 +200,46 @@ namespace InspIRCdExtban
 	class RealnameMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	RealnameMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		RealnameMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return Anope::Match(u->realname, real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return Anope::Match(u->realname, real_mask);
+		}
 	};
 
 	class ServerMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	ServerMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		ServerMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return Anope::Match(u->server->GetName(), real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return Anope::Match(u->server->GetName(), real_mask);
+		}
 	};
 
 	class FingerprintMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	FingerprintMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		FingerprintMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return !u->fingerprint.empty() && Anope::Match(u->fingerprint, real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return !u->fingerprint.empty() && Anope::Match(u->fingerprint, real_mask);
+		}
 	};
 
 	class UnidentifiedMatcher : public InspIRCdExtBan
@@ -251,8 +251,8 @@ namespace InspIRCdExtban
 
 		bool Matches(User *u, const Entry *e) anope_override
 		{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
 			return !u->Account() && Entry("BAN", real_mask).Matches(u);
 		}
 	};
@@ -923,7 +923,7 @@ class IRCDMessageMetadata : IRCDMessage
 				}
 				else if ((do_topiclock) && (params[1] == "topiclock"))
 				{
-					bool mystate = c->ci->GetExt<bool>("TOPICLOCK");
+					bool mystate = c->ci->HasExt("TOPICLOCK");
 					bool serverstate = (params[2] == "1");
 					if (mystate != serverstate)
 						UplinkSocket::Message(Me) << "METADATA " << c->name << " topiclock :" << (mystate ? "1" : "");

@@ -1,7 +1,7 @@
 Anope -- a set of IRC services for IRC networks
 -----------------------------------------------
 
-Anope is          2003-2019 Anope Team    <team@anope.org>.
+Anope is          2003-2020 Anope Team    <team@anope.org>.
 Based on Epona    2000-2002 PegSoft       <epona@pegsoft.net>.
 Based on Services 1996-1999 Andrew Church <achurch@achurch.org>.
 
@@ -168,12 +168,12 @@ Table of Contents
 
         * Bahamut 1.4.27 or later (including 1.8)
         * Charybdis 3.4 or later
-        * Hybrid 8.2 or later
+        * ircd-hybrid 8.2.23 or later
         * InspIRCd 1.2 or later
         * ngIRCd 19.2 or later
         * Plexus 3 or later
         * Ratbox 2.0.6 or later
-        * UnrealIRCd 3.2 or 4
+        * UnrealIRCd 3.2 or later
 
     Anope could also work with some of the daemons derived by the ones listed
     above, but there's no support for them if they work or don't work.

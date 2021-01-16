@@ -1,6 +1,6 @@
 /*
  *
- * (C) 2011-2019 Anope Team
+ * (C) 2011-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -15,6 +15,9 @@ class GlobalService : public Service
 	GlobalService(Module *m) : Service(m, "GlobalService", "Global")
 	{
 	}
+
+	/** Retrieves the bot which sends global messages unless otherwise specified. */
+	virtual Reference<BotInfo> GetDefaultSender() = 0;
 
 	/** Send out a global message to all users
 	 * @param sender Our client which should send the global

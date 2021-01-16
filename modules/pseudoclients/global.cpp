@@ -1,6 +1,6 @@
 /* Global core functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -27,6 +27,11 @@ class GlobalCore : public Module, public GlobalService
 	GlobalCore(const Anope::string &modname, const Anope::string &creator) : Module(modname, creator, PSEUDOCLIENT | VENDOR),
 		GlobalService(this)
 	{
+	}
+
+	Reference<BotInfo> GetDefaultSender() anope_override
+	{
+		return Global;
 	}
 
 	void SendGlobal(BotInfo *sender, const Anope::string &source, const Anope::string &message) anope_override

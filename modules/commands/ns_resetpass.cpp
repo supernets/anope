@@ -1,6 +1,6 @@
 /* NickServ core functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -100,7 +100,7 @@ class NSResetPass : public Module
 					reset.Unset(nc);
 					nc->Shrink<bool>("UNCONFIRMED");
 
-					Log(LOG_COMMAND, source, &commandnsresetpass) << "confirmed RESETPASS to forcefully identify as " << na->nick;
+					Log(LOG_COMMAND, source, &commandnsresetpass) << "to confirm RESETPASS and forcefully identify as " << na->nick;
 
 					if (source.GetUser())
 					{

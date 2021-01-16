@@ -1,6 +1,6 @@
 /*
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -22,7 +22,7 @@ class CoreExport IRCDProto : public Service
 	Anope::string proto_name;
 
  protected:
- 	IRCDProto(Module *creator, const Anope::string &proto_name);
+	IRCDProto(Module *creator, const Anope::string &proto_name);
  public:
 	virtual ~IRCDProto();
 

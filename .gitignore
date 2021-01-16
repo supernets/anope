@@ -1,0 +1,4 @@
+config.cache
+include/sysconf.h
+build/
+run/

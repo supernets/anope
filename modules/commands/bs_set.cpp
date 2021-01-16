@@ -1,6 +1,6 @@
 /* BotServ core functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -69,7 +69,7 @@ class CommandBSSet : public Command
 class CommandBSSetBanExpire : public Command
 {
  public:
- 	class UnbanTimer : public Timer
+	class UnbanTimer : public Timer
 	{
 		Anope::string chname;
 		Anope::string mask;

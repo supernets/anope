@@ -1,6 +1,6 @@
 /* InspIRCd 3.0 functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -67,6 +67,7 @@ class InspIRCd3Proto : public IRCDProto
 		CanCertFP = true;
 		RequiresID = true;
 		MaxModes = 20;
+		MaxLine = 4096;
 	}
 
 	void SendConnect() anope_override
@@ -261,7 +262,7 @@ class InspIRCd3Proto : public IRCDProto
 		Anope::string modes = "+" + u->GetModes();
 		UplinkSocket::Message(Me) << "UID " << u->GetUID() << " " << u->timestamp << " " << u->nick << " " << u->host << " " << u->host << " " << u->GetIdent() << " 0.0.0.0 " << u->timestamp << " " << modes << " :" << u->realname;
 		if (modes.find('o') != Anope::string::npos)
-			UplinkSocket::Message(u) << "OPERTYPE :services";
+			UplinkSocket::Message(u) << "OPERTYPE :service";
 	}
 
 	void SendServer(const Server *server) anope_override
@@ -404,11 +405,13 @@ class InspIRCd3Proto : public IRCDProto
 		if (na->nc->HasExt("UNCONFIRMED"))
 			return;
 
+		UplinkSocket::Message(Me) << "METADATA " << u->GetUID() << " accountid :" << na->nc->GetId();
 		UplinkSocket::Message(Me) << "METADATA " << u->GetUID() << " accountname :" << na->nc->display;
 	}
 
 	void SendLogout(User *u) anope_override
 	{
+		UplinkSocket::Message(Me) << "METADATA " << u->GetUID() << " accountid :";
 		UplinkSocket::Message(Me) << "METADATA " << u->GetUID() << " accountname :";
 	}
 
@@ -424,6 +427,12 @@ class InspIRCd3Proto : public IRCDProto
 
 	void SendSVSLogin(const Anope::string &uid, const Anope::string &acc, const Anope::string &vident, const Anope::string &vhost) anope_override
 	{
+		// TODO: in 2.1 this function should take a NickAlias instead of strings.
+		NickCore *nc = NickCore::Find(acc);
+		if (!nc)
+			return;
+
+		UplinkSocket::Message(Me) << "METADATA " << uid << " accountid :" << nc->GetId();
 		UplinkSocket::Message(Me) << "METADATA " << uid << " accountname :" << acc;
 
 		if (!vident.empty())
@@ -574,9 +583,9 @@ namespace InspIRCdExtban
 	class AccountMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	AccountMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		AccountMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
 		bool Matches(User *u, const Entry *e) anope_override
 		{
@@ -590,46 +599,46 @@ namespace InspIRCdExtban
 	class RealnameMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	RealnameMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		RealnameMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return Anope::Match(u->realname, real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return Anope::Match(u->realname, real_mask);
+		}
 	};
 
 	class ServerMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	ServerMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		ServerMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return Anope::Match(u->server->GetName(), real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return Anope::Match(u->server->GetName(), real_mask);
+		}
 	};
 
 	class FingerprintMatcher : public InspIRCdExtBan
 	{
 	 public:
-	 	FingerprintMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
-	 	{
-	 	}
+		FingerprintMatcher(const Anope::string &mname, const Anope::string &mbase, char c) : InspIRCdExtBan(mname, mbase, c)
+		{
+		}
 
-	 	bool Matches(User *u, const Entry *e) anope_override
-	 	{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
-	 		return !u->fingerprint.empty() && Anope::Match(u->fingerprint, real_mask);
-	 	}
+		bool Matches(User *u, const Entry *e) anope_override
+		{
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
+			return !u->fingerprint.empty() && Anope::Match(u->fingerprint, real_mask);
+		}
 	};
 
 	class UnidentifiedMatcher : public InspIRCdExtBan
@@ -641,8 +650,8 @@ namespace InspIRCdExtban
 
 		bool Matches(User *u, const Entry *e) anope_override
 		{
-	 		const Anope::string &mask = e->GetMask();
-	 		Anope::string real_mask = mask.substr(2);
+			const Anope::string &mask = e->GetMask();
+			Anope::string real_mask = mask.substr(2);
 			return !u->Account() && Entry("BAN", real_mask).Matches(u);
 		}
 	};
@@ -1146,15 +1155,15 @@ struct IRCDMessageCapab : Message::Capab
 		{
 			if (!Servers::Capab.count("SERVICES"))
 			{
-				UplinkSocket::Message() << "ERROR :m_services_account.so is not loaded. This is required by Anope";
-				Anope::QuitReason = "ERROR: Remote server does not have the m_services_account module loaded, and this is required.";
+				UplinkSocket::Message() << "ERROR :The services_account module is not loaded. This is required by Anope";
+				Anope::QuitReason = "ERROR: Remote server does not have the services_account module loaded, and this is required.";
 				Anope::Quitting = true;
 				return;
 			}
 			if (!ModeManager::FindUserModeByName("PRIV"))
 			{
-				UplinkSocket::Message() << "ERROR :m_hidechans.so is not loaded. This is required by Anope";
-				Anope::QuitReason = "ERROR: Remote server does not have the m_hidechans module loaded, and this is required.";
+				UplinkSocket::Message() << "ERROR :The hidechans module is not loaded. This is required by Anope";
+				Anope::QuitReason = "ERROR: Remote server does not have the hidechans module loaded, and this is required.";
 				Anope::Quitting = true;
 				return;
 			}
@@ -1249,11 +1258,13 @@ struct IRCDMessageKick : IRCDMessage
 
 	void Run(MessageSource &source, const std::vector<Anope::string> &params) anope_override
 	{
+		// Received: :715AAAAAA KICK #chan 715AAAAAD :reason
+		// Received: :715AAAAAA KICK #chan 628AAAAAA 4 :reason
 		Channel *c = Channel::Find(params[0]);
-		if (c)
+		if (!c)
 			return;
 
-		const Anope::string &reason = params.size() > 3 ? params[3] : "";
+		const Anope::string &reason = params.size() > 3 ? params[3] : params[2];
 		c->KickInternal(source, params[1], reason);
 	}
 };
@@ -1306,17 +1317,19 @@ class IRCDMessageMetadata : IRCDMessage
 	const bool &do_mlock;
 
  public:
-	IRCDMessageMetadata(Module *creator, const bool &handle_topiclock, const bool &handle_mlock) : IRCDMessage(creator, "METADATA", 3), do_topiclock(handle_topiclock), do_mlock(handle_mlock) { SetFlag(IRCDMESSAGE_REQUIRE_SERVER); }
+	IRCDMessageMetadata(Module *creator, const bool &handle_topiclock, const bool &handle_mlock) : IRCDMessage(creator, "METADATA", 3), do_topiclock(handle_topiclock), do_mlock(handle_mlock) { SetFlag(IRCDMESSAGE_REQUIRE_SERVER); SetFlag(IRCDMESSAGE_SOFT_LIMIT); }
 
 	void Run(MessageSource &source, const std::vector<Anope::string> &params) anope_override
 	{
 		// We deliberately ignore non-bursting servers to avoid pseudoserver fights
-		if ((params[0][0] == '#') && (!source.GetServer()->IsSynced()))
+		// Channel METADATA has an additional parameter: the channel TS
+		// Received: :715 METADATA #chan 1572026333 mlock :nt
+		if ((params[0][0] == '#') && (params.size() > 3) && (!source.GetServer()->IsSynced()))
 		{
 			Channel *c = Channel::Find(params[0]);
 			if (c && c->ci)
 			{
-				if ((do_mlock) && (params[1] == "mlock"))
+				if ((do_mlock) && (params[2] == "mlock"))
 				{
 					ModeLocks *modelocks = c->ci->GetExt<ModeLocks>("modelocks");
 					Anope::string modes;
@@ -1324,15 +1337,15 @@ class IRCDMessageMetadata : IRCDMessage
 						modes = modelocks->GetMLockAsString(false).replace_all_cs("+", "").replace_all_cs("-", "");
 
 					// Mode lock string is not what we say it is?
-					if (modes != params[2])
-						UplinkSocket::Message(Me) << "METADATA " << c->name << " mlock :" << modes;
+					if (modes != params[3])
+						UplinkSocket::Message(Me) << "METADATA " << c->name << " " << c->creation_time << " mlock :" << modes;
 				}
-				else if ((do_topiclock) && (params[1] == "topiclock"))
+				else if ((do_topiclock) && (params[2] == "topiclock"))
 				{
-					bool mystate = c->ci->GetExt<bool>("TOPICLOCK");
-					bool serverstate = (params[2] == "1");
+					bool mystate = c->ci->HasExt("TOPICLOCK");
+					bool serverstate = (params[3] == "1");
 					if (mystate != serverstate)
-						UplinkSocket::Message(Me) << "METADATA " << c->name << " topiclock :" << (mystate ? "1" : "");
+						UplinkSocket::Message(Me) << "METADATA " << c->name << " " << c->creation_time << " topiclock :" << (mystate ? "1" : "");
 				}
 			}
 		}
@@ -1523,15 +1536,19 @@ struct IRCDMessageFMode : IRCDMessage
 
 struct IRCDMessageFTopic : IRCDMessage
 {
-	IRCDMessageFTopic(Module *creator) : IRCDMessage(creator, "FTOPIC", 5) { }
+	IRCDMessageFTopic(Module *creator) : IRCDMessage(creator, "FTOPIC", 4) { SetFlag(IRCDMESSAGE_SOFT_LIMIT);  }
 
 	void Run(MessageSource &source, const std::vector<Anope::string> &params) anope_override
 	{
-		/* :source FTOPIC channel ts topicts setby :topic */
+		// :source FTOPIC channel ts topicts :topic
+		// :source FTOPIC channel ts topicts setby :topic (burst or RESYNC)
+
+		const Anope::string &setby = params.size() > 4 ? params[3] : source.GetName();
+		const Anope::string &topic = params.size() > 4 ? params[4] : params[3];
 
 		Channel *c = Channel::Find(params[0]);
 		if (c)
-			c->ChangeTopicInternal(NULL, params[3], params[4], params[2].is_pos_number_only() ? convertTo<time_t>(params[2]) : Anope::CurTime);
+			c->ChangeTopicInternal(NULL, setby, topic, params[2].is_pos_number_only() ? convertTo<time_t>(params[2]) : Anope::CurTime);
 	}
 };
 
@@ -1578,9 +1595,9 @@ struct IRCDMessageIJoin : IRCDMessage
 		time_t chants = Anope::CurTime;
 		if (params.size() >= 4)
 		{
-			chants = params[2].is_pos_number_only() ? convertTo<unsigned>(params[2]) : 3;
-			for (unsigned i = 0; i < params[5].length(); ++i)
-				user.first.AddMode(params[5][i]);
+			chants = params[2].is_pos_number_only() ? convertTo<unsigned>(params[2]) : 0;
+			for (unsigned i = 0; i < params[3].length(); ++i)
+				user.first.AddMode(params[3][i]);
 		}
 
 		std::list<Message::Join::SJoinUser> users;
@@ -1786,6 +1803,7 @@ struct IRCDMessageUID : IRCDMessage
 class ProtoInspIRCd3 : public Module
 {
 	InspIRCd3Proto ircd_proto;
+	ExtensibleItem<bool> ssl;
 
 	/* Core message handlers */
 	Message::Error message_error;
@@ -1832,7 +1850,7 @@ class ProtoInspIRCd3 : public Module
 
  public:
 	ProtoInspIRCd3(const Anope::string &modname, const Anope::string &creator) : Module(modname, creator, PROTOCOL | VENDOR),
-		ircd_proto(this),
+		ircd_proto(this), ssl(this, "ssl"),
 		message_error(this), message_invite(this), message_kill(this), message_motd(this), message_notice(this),
 		message_part(this), message_privmsg(this), message_quit(this), message_stats(this),
 		message_away(this), message_capab(this), message_encap(this), message_endburst(this), message_fhost(this),

@@ -1,6 +1,6 @@
 /*
  *
- * (C) 2012-2019 Anope Team
+ * (C) 2012-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -58,7 +58,7 @@ class CommandCSSetChanstats : public Command
 	{
 		this->SendSyntax(source);
 		source.Reply(" ");
-		source.Reply("Turn Chanstats channel statistics ON or OFF.");
+		source.Reply(_("Turns chanstats statistics ON or OFF."));
 		return true;
 	}
 };
@@ -116,7 +116,7 @@ class CommandNSSetChanstats : public Command
 	{
 		this->SendSyntax(source);
 		source.Reply(" ");
-		source.Reply(_("Turns Chanstats statistics ON or OFF."));
+		source.Reply(_("Turns chanstats statistics ON or OFF."));
 		return true;
 	}
 };

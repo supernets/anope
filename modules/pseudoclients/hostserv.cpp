@@ -1,6 +1,6 @@
 /* HostServ core functions
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -63,6 +63,15 @@ class HostServCore : public Module
 				else
 					u->SendMessage(HostServ, _("Your vhost of \002%s\002 is now activated."), na->GetVhostHost().c_str());
 			}
+		}
+	}
+
+	void OnNickDrop(CommandSource &source, NickAlias *na) anope_override
+	{
+		if (na->HasVhost())
+		{
+			FOREACH_MOD(OnDeleteVhost, (na));
+			na->RemoveVhost();
 		}
 	}
 

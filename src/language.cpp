@@ -1,6 +1,6 @@
 /*
  *
- * (C) 2003-2019 Anope Team
+ * (C) 2003-2020 Anope Team
  * Contact us at team@anope.org
  *
  * Please read COPYING and README for further details.
@@ -75,7 +75,7 @@ const char *Language::Translate(const NickCore *nc, const char *string)
 
 #if GETTEXT_FOUND
 
-#ifdef __USE_GNU_GETTEXT
+#if defined(__GLIBC__) && defined(__USE_GNU_GETTEXT)
 extern "C" int _nl_msg_cat_cntr;
 #endif
 
@@ -87,7 +87,7 @@ const char *Language::Translate(const char *lang, const char *string)
 	if (!lang || !*lang)
 		lang = Config->DefLanguage.c_str();
 
-#ifdef __USE_GNU_GETTEXT
+#if defined(__GLIBC__) && defined(__USE_GNU_GETTEXT)
 	++_nl_msg_cat_cntr;
 #endif
 
