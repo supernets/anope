@@ -1,0 +1,7 @@
+.git
+.gitignore
+README.md
+assets
+build
+data/*.conf
+data/services.motd
