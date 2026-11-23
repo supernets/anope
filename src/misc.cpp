@@ -25,7 +25,12 @@
 #ifndef _WIN32
 #include <sys/socket.h>
 #include <netdb.h>
+# ifdef __APPLE__
+#  include <sys/random.h>
+# endif
 #endif
+
+#include <limits>
 
 NumberList::NumberList(const Anope::string &list, bool descending) : is_valid(true), desc(descending)
 {
@@ -46,7 +51,11 @@ NumberList::NumberList(const Anope::string &list, bool descending) : is_valid(tr
 			{
 				unsigned num = convertTo<unsigned>(token, error, false);
 				if (error.empty())
+				{
 					numbers.insert(num);
+					if (numbers.size() >= MAX_NUMBERS)
+						return;
+				}
 			}
 			catch (const ConvertException &)
 			{
@@ -70,8 +79,15 @@ NumberList::NumberList(const Anope::string &list, bool descending) : is_valid(tr
 				unsigned num1 = convertTo<unsigned>(token.substr(0, t), error, false);
 				unsigned num2 = convertTo<unsigned>(token.substr(t + 1), error2, false);
 				if (error.empty() && error2.empty())
+				{
+					num2 = std::min<unsigned>(std::numeric_limits<unsigned>::max() - 1, num2);
 					for (unsigned i = num1; i <= num2; ++i)
+					{
 						numbers.insert(i);
+						if (numbers.size() >= MAX_NUMBERS)
+							return;
+					}
+				}
 			}
 			catch (const ConvertException &)
 			{
@@ -770,6 +786,21 @@ Anope::string Anope::Random(size_t len)
 	};
 	Anope::string buf;
 	for (size_t i = 0; i < len; ++i)
-		buf.append(chars[rand() % sizeof(chars)]);
+		buf.append(chars[Anope::RandomNumber() % sizeof(chars)]);
 	return buf;
+}
+
+int Anope::RandomNumber()
+{
+#ifdef HAVE_GETENTROPY
+	int result;
+	if (getentropy(&result, sizeof(result)) == 0)
+		return result;
+#endif
+
+#ifdef HAVE_ARC4RANDOM_UNIFORM
+	return (int)arc4random_uniform((uint32_t)RAND_MAX + 1U);
+#else
+	return rand();
+#endif
 }

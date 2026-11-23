@@ -49,7 +49,7 @@ class WebpanelRequest : public IdentifyRequest
 		{
 			char c;
 			do
-				c = 48 + (rand() % 75);
+				c = 48 + (Anope::RandomNumber() % 75);
 			while (!isalnum(c));
 			id += c;
 		}
@@ -93,10 +93,16 @@ class WebpanelRequest : public IdentifyRequest
 bool WebCPanel::Index::OnRequest(HTTPProvider *server, const Anope::string &page_name, HTTPClient *client, HTTPMessage &message, HTTPReply &reply)
 {
 	TemplateFileServer::Replacements replacements;
-	const Anope::string &user = message.post_data["username"], &pass = message.post_data["password"];
-
 	replacements["TITLE"] = page_title;
 
+	if (!WebPanel::IsAllowedOrigin(message))
+	{
+		client->SendError(HTTP_BAD_REQUEST, "Invalid request origin.");
+		return true;
+	}
+
+	const Anope::string user = WebPanel::GetRequestData(message.post_data, "username");
+	const Anope::string pass = WebPanel::GetRequestData(message.post_data, "password");
 	if (!user.empty() && !pass.empty())
 	{
 		// Rate limit check.

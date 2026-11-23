@@ -355,6 +355,8 @@ check_include_file(stdint.h HAVE_STDINT_H)
 check_include_file(strings.h HAVE_STRINGS_H)
 
 # Check for the existence of the following functions
+check_function_exists(arc4random_uniform HAVE_ARC4RANDOM_UNIFORM)
+check_function_exists(getentropy HAVE_GETENTROPY)
 check_function_exists(strcasecmp HAVE_STRCASECMP)
 check_function_exists(stricmp HAVE_STRICMP)
 check_function_exists(umask HAVE_UMASK)
@@ -386,25 +388,25 @@ endif(INSTDIR)
 
 # Set default paths for various directories if not already defined
 if(NOT BIN_DIR)
-  set(BIN_DIR "bin")
+  set(BIN_DIR "bin" CACHE PATH "Location of the bin directory")
 endif(NOT BIN_DIR)
 if(NOT DB_DIR)
-  set(DB_DIR "data")
+  set(DB_DIR "data" CACHE PATH "Location of the data directory")
 endif(NOT DB_DIR)
 if(NOT DOC_DIR)
-  set(DOC_DIR "doc")
+  set(DOC_DIR "doc" CACHE PATH "Location of the doc directory")
 endif(NOT DOC_DIR)
 if(NOT CONF_DIR)
-  set(CONF_DIR "conf")
+  set(CONF_DIR "conf" CACHE PATH "Location of the conf directory")
 endif(NOT CONF_DIR)
 if(NOT LIB_DIR)
-  set(LIB_DIR "lib")
+  set(LIB_DIR "lib" CACHE PATH "Location of the lib directory")
 endif(NOT LIB_DIR)
 if(NOT LOCALE_DIR)
-  set(LOCALE_DIR "locale")
+  set(LOCALE_DIR "locale" CACHE PATH "Location of the locale directory")
 endif(NOT LOCALE_DIR)
 if(NOT LOGS_DIR)
-  set(LOGS_DIR "logs")
+  set(LOGS_DIR "logs" CACHE PATH "Location of the log directory")
 endif(NOT LOGS_DIR)
 
 # Version number processing
@@ -469,20 +471,16 @@ if(${Anope_SOURCE_DIR} STREQUAL ${Anope_BINARY_DIR})
   endif(MSVC)
 endif(${Anope_SOURCE_DIR} STREQUAL ${Anope_BINARY_DIR})
 
-# Get the filename of the Anope binary, to use later
-set(SERVICES_BINARY "$<TARGET_FILE:${PROGRAM_NAME}>")
-get_filename_component(SERVICES_BINARY ${SERVICES_BINARY} NAME)
-
 # At install time, create the following additional directories
-install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${DB_DIR}/backups\")")
-install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LOGS_DIR}\")")
+install(DIRECTORY DESTINATION "${DB_DIR}/backups")
+install(DIRECTORY DESTINATION "${LOGS_DIR}")
 if(WIN32)
-  install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${DB_DIR}/runtime\")")
+  install(DIRECTORY DESTINATION "${DB_DIR}/runtime")
 endif(WIN32)
 # On non-Windows platforms, if RUNGROUP is set, change the permissions of the below directories, as well as the group of the data directory
 if(NOT WIN32 AND RUNGROUP)
-  install(CODE "execute_process(COMMAND ${CHMOD} 2775 \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/\${DB_DIR}/backups\")")
-  install(CODE "execute_process(COMMAND ${CHMOD} 2775 \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/\${LOGS_DIR}\")")
+  install(CODE "execute_process(COMMAND ${CHMOD} 2775 \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${DB_DIR}/backups\")")
+  install(CODE "execute_process(COMMAND ${CHMOD} 2775 \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${LOGS_DIR}\")")
   install(CODE "execute_process(COMMAND ${CHGRP} -R ${RUNGROUP} \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}\")")
 endif(NOT WIN32 AND RUNGROUP)
 # On Windows platforms, install extra files
@@ -507,6 +505,8 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
   #set(CPACK_RESOURCE_FILE_README "${Anope_SOURCE_DIR}/docs/README")
   # The following is primarily for NSIS
   if(WIN32)
+    # Get the filename of the Anope binary, to use later
+    set(SERVICES_BINARY "bin\\\\${PROGRAM_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
     # By default, do not warn when built on machines using only VS Express:
     IF(NOT DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS)
       SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
@@ -517,7 +517,7 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "Anope")
     set(CPACK_PACKAGE_EXECUTABLES "")
     set(CPACK_NSIS_MENU_LINKS
-      "bin\\\\${SERVICES_BINARY}" "Anope IRC Services"
+      "${SERVICES_BINARY}" "Anope IRC Services"
       "bin\\\\anope.bat\\\" \\\"-debug -nofork" "Anope IRC Services (Debug and Window Logging)"
       "bin\\\\anope.bat\\\" \\\"-nofork" "Anope IRC Services (Window Logging)"
       "bin\\\\anope.bat\\\" \\\"-nothird" "Anope IRC Services (No Third Party Modules)"
